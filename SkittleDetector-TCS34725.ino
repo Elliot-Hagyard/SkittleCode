@@ -101,7 +101,7 @@ void recalibrate(){
               delay(200);
               getNormalizedColor();
               col_class = getColorClass();
-              if (col_class != COL_NOTHING){
+              if (col_class == COL_NOTHING){
                  myMotor->step(5, FORWARD, DOUBLE);
                  delay(200);
                 }

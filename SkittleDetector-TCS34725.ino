@@ -97,12 +97,12 @@ void recalibrate(){
           col_class = getColorClass();
           printColourName(col_class);
           if(similarity_max > distances[col_class] and col_class == COL_BLUE or col_class == COL_PURPLE){
-              myMotor->step(5, FORWARD, DOUBLE);
+              myMotor->step(5, BACKWARD, DOUBLE);
               delay(200);
               getNormalizedColor();
               col_class = getColorClass();
               if (col_class == COL_NOTHING){
-                 myMotor->step(4, BACKWARD, DOUBLE);
+                 myMotor->step(5, FORWARD, DOUBLE);
                  delay(200);
                 }
          
@@ -318,7 +318,7 @@ void move_to_color(int color){
      Serial.println(color);
      Serial.println(cur_angle);
      tube_servo.write(cur_angle);
-     delay(45+delta_angle);
+     delay(50+delta_angle);
   }
 /*
  * Main Arduino functions
@@ -368,7 +368,7 @@ void loop(void) {
     //Avoid redundant steps in calibration
   if(all_ready){
 //  Receneter the item
-    if(colClass == COL_NOTHING || rotations % 3 == 0){
+    if(colClass == COL_NOTHING){
          recalibrate();
          getNormalizedColor();
          colClass = getColorClass();
@@ -382,6 +382,7 @@ void loop(void) {
     if (colClass != COL_BLUE){
     printColourName(colClass);  
     }
+    rotation ++;
   Serial.println("");
     myMotor->step(10, FORWARD, DOUBLE);
  

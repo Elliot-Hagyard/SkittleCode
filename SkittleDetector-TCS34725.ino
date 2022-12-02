@@ -101,7 +101,7 @@ void recalibrate(){
               delay(200);
               getNormalizedColor();
               col_class = getColorClass();
-              if (col_class == COL_NOTHING){
+              if (col_class != COL_NOTHING){
                  myMotor->step(5, FORWARD, DOUBLE);
                  delay(200);
                 }
@@ -119,9 +119,9 @@ void recalibrate(){
 
           myMotor->step(1, FORWARD, MICROSTEP);
           delay(50);
-          // Not sure on the resolution of microstep relative to regular step, but saw something online that suggested it was around 16 microsteps to 1 step
+          // Not sure on the resolution of microstep relative to regular step
           i+=1;
-          if (i == 16){
+          if (i == 8){
             //This is to avoid the stepper motor 
             myMotor->step(10, BACKWARD, DOUBLE);
             delay(200);

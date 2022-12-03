@@ -8,7 +8,7 @@ import serial
 import threading
 
 arduino = serial.Serial(port='/dev/cu.usbmodem1101',
-#                        baudrate = 115200, timeout = .1)
+                       baudrate = 115200, timeout = .1)
 header = ['R', 'G', 'B', 'ID']
 COLORS = ["RED","S_RED", "YELLOW", "GREEN", "WOOD", "ORANGE", "S_ORANGE", "PURPLE"]
 MARKERS = ["v","V", ">", "<", "s", "x","X", "p"]

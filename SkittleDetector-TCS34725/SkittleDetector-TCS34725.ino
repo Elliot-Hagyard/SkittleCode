@@ -368,6 +368,12 @@ void loop(void) {
   if(all_ready){
 //  Receneter the item
     if(colClass == COL_NOTHING){
+         Serial.print(rNorm, 3); Serial.print(",");
+         Serial.print(gNorm, 3); Serial.print(",");
+         Serial.print(bNorm, 3);  Serial.print(",");
+         if (colClass != COL_BLUE){
+            printColourName(colClass); 
+         }
          recalibrate();
          getNormalizedColor();
          colClass = getColorClass();

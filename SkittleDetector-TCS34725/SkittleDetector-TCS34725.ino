@@ -81,8 +81,8 @@ float brightness = 0.0f;
 int cur_angle = 0;
 // Last classified class
 int lastClass = -1;
-int maxIdx;
-int secondMaxIdx;
+int maxIdx = 0;
+int secondMaxIdx = 0;
 float lastCosine = 0;
 float distances[NUM_COLORS] = {0.0f};
 
@@ -230,7 +230,7 @@ int getColorClass() {
   //
 
   if(all_ready){
-
+    
   }
   // Step 3: Return the index of the minimum color
   lastCosine = maxVal;
@@ -305,16 +305,12 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
 }
 
 void move_to_color(int color){
-  
      //Serial.println(color);
-     
      color = color_to_angle_index[color];
      int delta_angle = abs(cur_angle - color_angle_array[color]);
      cur_angle = color_angle_array[color];
-     
      //Serial.println(color);
      //Serial.println(cur_angle);
-     
      tube_servo.write(cur_angle);
      delay(50+delta_angle);
   }
@@ -388,6 +384,9 @@ void loop(void) {
     else{
        move_to_color(maxIdx);
     }
+    maxIdx = 0;
+    secondMaxIdx = 0;
+
     myMotor->step(10, FORWARD, DOUBLE);
  
    

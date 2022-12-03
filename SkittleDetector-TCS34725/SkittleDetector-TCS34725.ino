@@ -390,6 +390,12 @@ void loop(void) {
     //rotation ++;
   Serial.println("");
     if (maxIdx >= VALID_COLORS){
+      printColourName(secondMaxIdx);
+      for(int i = 0; i < NUM_COLORS; i++){
+          Serial.print("C"); Seiral.print("i");
+          Serial.println(distances[i]);
+        }
+      move_to_color(secondMaxIdx);
       move_to_color(secondMaxIdx);
       }
     else{

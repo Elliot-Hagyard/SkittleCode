@@ -395,7 +395,7 @@ void loop(void) {
     if (maxIdx >= VALID_COLORS){
       printColourName(secondMaxIdx);
       for(int i = 0; i < NUM_COLORS; i++){
-          Serial.print("C"); Seiral.print("i");
+          Serial.print("C"); Serial.print(i);
           Serial.println(distances[i]);
         }
       move_to_color(secondMaxIdx);
@@ -409,8 +409,8 @@ void loop(void) {
 
     myMotor->step(10, FORWARD, DOUBLE);
    for(int i = 0; i < 5; i++){
-    servo_arm.write(0);
-    servo_arm.write(40);
+    arm_servo.write(0);
+    arm_servo.write(40);
    }
 
   delay(200);

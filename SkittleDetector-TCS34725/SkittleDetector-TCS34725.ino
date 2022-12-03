@@ -30,6 +30,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 /*
  * Global colour sensing variables
  */
+#define SERVO_ARM_PIN 12
 #define SERVO_TUBE_PIN 11
 #define NUM_COLORS  9
 #define VALID_COLORS 7
@@ -66,6 +67,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 
 // Training colours (populate these manually, but these vectors must be of unit length (i.e. length 1))
 Servo tube_servo;
+Servo arm_servo;
 bool all_ready = false;
 int color_angle_array[5];
 int color_to_angle_index[VALID_COLORS] = {0,0,1,2,2,3,4};
@@ -328,6 +330,7 @@ void setup(void) {
   Serial.print("here");
   while (!Serial);
   tube_servo.attach(SERVO_TUBE_PIN);
+  arm_servo.attach(SERVO_ARM_PIN);
   Serial.println("Stepper test!");
 
   if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
@@ -405,8 +408,11 @@ void loop(void) {
     secondMaxIdx = 0;
 
     myMotor->step(10, FORWARD, DOUBLE);
- 
-   
+   for(int i = 0; i < 5; i++){
+    servo_arm.write(0);
+    servo_arm.write(40);
+   }
+
   delay(200);
   
 

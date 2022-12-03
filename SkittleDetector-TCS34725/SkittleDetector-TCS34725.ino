@@ -107,7 +107,12 @@ void recalibrate(){
                  myMotor->step(5, FORWARD, DOUBLE);
                  delay(200);
                 }
-         
+              if (maxIdx >= VALID_COLORS){
+                  move_to_color(secondMaxIdx);
+               }
+              else{
+                move_to_color(maxIdx);
+               }
               myMotor->step(10, FORWARD, DOUBLE);
               delay(150);
               return;

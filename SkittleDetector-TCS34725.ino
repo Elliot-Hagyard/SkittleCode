@@ -81,6 +81,8 @@ float brightness = 0.0f;
 int cur_angle = 0;
 // Last classified class
 int lastClass = -1;
+int maxIdx;
+int secondMaxIdx;
 float lastCosine = 0;
 float distances[NUM_COLORS] = {0.0f};
 
@@ -214,8 +216,6 @@ int getColorClass() {
   }
   // Step 2: Find the vector with the highest cosine (meaning, the closest to the training color)
   float maxVal = distances[0];
-  int maxIdx = 0;
-  int secondMaxIdx = 0;
   for (int i=0; i<NUM_COLORS; i++) {
     if (distances[i] > maxVal) {
       //If senses wood, store second closest color
@@ -230,13 +230,7 @@ int getColorClass() {
   //
 
   if(all_ready){
-    if (maxIdx >= VALID_COLORS){
-      move_to_color(secondMaxIdx);
-      }
-    else{
-       move_to_color(maxIdx);
-    }
-
+    
   }
   // Step 3: Return the index of the minimum color
   lastCosine = maxVal;
@@ -384,6 +378,13 @@ void loop(void) {
     }
     rotation ++;
   Serial.println("");
+    if (maxIdx >= VALID_COLORS){
+      move_to_color(secondMaxIdx);
+      }
+    else{
+       move_to_color(maxIdx);
+    }
+
     myMotor->step(10, FORWARD, DOUBLE);
  
    

@@ -141,31 +141,31 @@ void initializeTrainingColors() {
 
   // Skittle: red 0.848  0.399 0.349
   // 0.912,0.304,0.274
-  trainingColors[CHANNEL_R][COL_RED] =  0.848;
-  trainingColors[CHANNEL_G][COL_RED] = 0.399;
-  trainingColors[CHANNEL_B][COL_RED] = 0.349;
+  trainingColors[CHANNEL_R][COL_RED] =  0.869;
+  trainingColors[CHANNEL_G][COL_RED] = 0.377;
+  trainingColors[CHANNEL_B][COL_RED] = 0.320;
   // RED HIGH 0.885,0.356,0.299
-  trainingColors[CHANNEL_R][COL_S_RED] =  0.885;
-  trainingColors[CHANNEL_G][COL_S_RED] = 0.356;
-  trainingColors[CHANNEL_B][COL_S_RED] = 0.299;
+  trainingColors[CHANNEL_R][COL_S_RED] =  0.888;
+  trainingColors[CHANNEL_G][COL_S_RED] = 0.351;
+  trainingColors[CHANNEL_B][COL_S_RED] = 0.296;
   // Skittle: green
   trainingColors[CHANNEL_R][COL_GREEN] = 0.6;
   trainingColors[CHANNEL_G][COL_GREEN] = 0.714;
   trainingColors[CHANNEL_B][COL_GREEN] = 0.354;
 
   // S0.928,0.319,0.194
-  trainingColors[CHANNEL_R][COL_ORANGE] = 0.928;
-  trainingColors[CHANNEL_G][COL_ORANGE] = 0.319;
-  trainingColors[CHANNEL_B][COL_ORANGE] = 0.194;
+  trainingColors[CHANNEL_R][COL_ORANGE] = 0.901;
+  trainingColors[CHANNEL_G][COL_ORANGE] = 0.375;
+  trainingColors[CHANNEL_B][COL_ORANGE] = 0.217;
   //0.880,0.389,0.272
-   trainingColors[CHANNEL_R][COL_S_ORANGE] = 0.880;
-  trainingColors[CHANNEL_G][COL_S_ORANGE] = 0.389;
-  trainingColors[CHANNEL_B][COL_S_ORANGE] = 0.272;
+   trainingColors[CHANNEL_R][COL_S_ORANGE] = 0.866;
+  trainingColors[CHANNEL_G][COL_S_ORANGE] = 0.415;
+  trainingColors[CHANNEL_B][COL_S_ORANGE] = 0.277;
 
   // 0.766,0.601,0.226
-  trainingColors[CHANNEL_R][COL_YELLOW] = 0.766;
-  trainingColors[CHANNEL_G][COL_YELLOW] = 0.601;
-  trainingColors[CHANNEL_B][COL_YELLOW] = 0.226;
+  trainingColors[CHANNEL_R][COL_YELLOW] = 0.760;
+  trainingColors[CHANNEL_G][COL_YELLOW] = 0.608;
+  trainingColors[CHANNEL_B][COL_YELLOW] = 0.228;
   // Skittle: purple 0.633,0.575,0.518
   trainingColors[CHANNEL_R][COL_PURPLE] = 0.633;
   trainingColors[CHANNEL_G][COL_PURPLE] = 0.575;

@@ -364,6 +364,16 @@ void setup(void) {
 
 void loop(void) {
 
+    for(int i = 0; i < 100; i++)
+    { 
+     Serial.println("Back");
+    arm_servo.write(10);
+    delay(500);
+    Serial.println("Forward");
+    arm_servo.write(140);
+    delay(100);
+    }
+
   // Step 1: Get normalized colour vector
   getNormalizedColor();
   int colClass = getColorClass(); 
@@ -408,11 +418,7 @@ void loop(void) {
     secondMaxIdx = 0;
 
     myMotor->step(10, FORWARD, DOUBLE);
-   for(int i = 0; i < 5; i++){
-    arm_servo.write(0);
-    arm_servo.write(40);
-   }
-
+    
   delay(200);
   
 

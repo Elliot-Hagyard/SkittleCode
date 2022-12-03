@@ -230,7 +230,6 @@ int getColorClass() {
   //
 
   if(all_ready){
-    
   }
   // Step 3: Return the index of the minimum color
   lastCosine = maxVal;
@@ -305,12 +304,16 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
 }
 
 void move_to_color(int color){
+  
      //Serial.println(color);
+     
      color = color_to_angle_index[color];
      int delta_angle = abs(cur_angle - color_angle_array[color]);
      cur_angle = color_angle_array[color];
+     
      //Serial.println(color);
      //Serial.println(cur_angle);
+     
      tube_servo.write(cur_angle);
      delay(50+delta_angle);
   }

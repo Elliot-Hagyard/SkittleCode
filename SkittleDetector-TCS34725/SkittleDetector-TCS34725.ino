@@ -58,11 +58,11 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 #define CHANNEL_R   0
 #define CHANNEL_G   1
 #define CHANNEL_B   2
-#define RED_ANGLE 15
+#define RED_ANGLE 0
 #define GREEN_ANGLE 45
-#define YELLOW_ANGLE 135
-#define ORANGE_ANGLE 175
 #define PURPLE_ANGLE 90
+#define YELLOW_ANGLE 135
+#define ORANGE_ANGLE 180
 
 // Training colours (populate these manually, but these vectors must be of unit length (i.e. length 1))
 Servo tube_servo;
@@ -317,7 +317,7 @@ void move_to_color(int color){
      //Serial.println(color);
      //Serial.println(cur_angle);
      tube_servo.write(cur_angle);
-     delay(50+delta_angle);
+     delay(2*delta_angle);
   }
 /*
  * Main Arduino functions
@@ -381,7 +381,7 @@ void loop(void) {
     if (colClass != COL_BLUE){
     printColourName(colClass);  
     }
-    rotation ++;
+    //rotation ++;
   Serial.println("");
     if (maxIdx >= VALID_COLORS){
       move_to_color(secondMaxIdx);

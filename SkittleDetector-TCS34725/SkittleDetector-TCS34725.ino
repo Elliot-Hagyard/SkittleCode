@@ -212,7 +212,7 @@ int getColorClass() {
     float cosineSimilarity = rNorm*trainingColors[CHANNEL_R][i] + gNorm*trainingColors[CHANNEL_G][i] + bNorm*trainingColors[CHANNEL_B][i];
     distances[i] = cosineSimilarity;
     // DEBUG: Output cosines
-    Serial.print("   C"); Serial.print(i); Serial.print(": "); Serial.println(cosineSimilarity, 3);
+    //Serial.print("   C"); Serial.print(i); Serial.print(": "); Serial.println(cosineSimilarity, 3);
   }
   // Step 2: Find the vector with the highest cosine (meaning, the closest to the training color)
   float maxVal = distances[0];
@@ -305,12 +305,12 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
 }
 
 void move_to_color(int color){
-     Serial.println(color);
+     //Serial.println(color);
      color = color_to_angle_index[color];
      int delta_angle = abs(cur_angle - color_angle_array[color]);
      cur_angle = color_angle_array[color];
-     Serial.println(color);
-     Serial.println(cur_angle);
+     //Serial.println(color);
+     //Serial.println(cur_angle);
      tube_servo.write(cur_angle);
      delay(50+delta_angle);
   }

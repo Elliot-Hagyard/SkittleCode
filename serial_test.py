@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import serial
 import threading
 
-# arduino = serial.Serial(port='/dev/cu.usbmodem1101',
+arduino = serial.Serial(port='/dev/cu.usbmodem1101',
 #                        baudrate = 115200, timeout = .1)
 header = ['R', 'G', 'B', 'ID']
-COLORS = ["RED", "YELLOW", "GREEN", "WOOD", "ORANGE", "PURPLE"]
-MARKERS = ["v", ">", "<", "s", "p", "X"]
+COLORS = ["RED","S_RED", "YELLOW", "GREEN", "WOOD", "ORANGE", "S_ORANGE", "PURPLE"]
+MARKERS = ["v","V", ">", "<", "s", "x","X", "p"]
 WOOD = [0.743, 0.557, 0.371]
 
 

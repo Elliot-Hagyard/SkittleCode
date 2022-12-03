@@ -141,9 +141,9 @@ void initializeTrainingColors() {
 
   // Skittle: red 0.848  0.399 0.349
   // 0.912,0.304,0.274
-  trainingColors[CHANNEL_R][COL_RED] =  0.828;
-  trainingColors[CHANNEL_G][COL_RED] = 0.429;
-  trainingColors[CHANNEL_B][COL_RED] = 0.361;
+  trainingColors[CHANNEL_R][COL_RED] =  0.869;
+  trainingColors[CHANNEL_G][COL_RED] = 0.377;
+  trainingColors[CHANNEL_B][COL_RED] = 0.320;
   // RED HIGH 0.885,0.356,0.299
   trainingColors[CHANNEL_R][COL_S_RED] =  0.888;
   trainingColors[CHANNEL_G][COL_S_RED] = 0.351;

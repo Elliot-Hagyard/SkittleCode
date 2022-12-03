@@ -230,6 +230,7 @@ int getColorClass() {
   //
 
   if(all_ready){
+
   }
   // Step 3: Return the index of the minimum color
   lastCosine = maxVal;
@@ -387,7 +388,6 @@ void loop(void) {
     else{
        move_to_color(maxIdx);
     }
-
     myMotor->step(10, FORWARD, DOUBLE);
  
    

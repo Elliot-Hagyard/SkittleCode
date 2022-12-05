@@ -59,7 +59,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 #define CHANNEL_R   0
 #define CHANNEL_G   1
 #define CHANNEL_B   2
-#define RED_ANGLE 0
+#define RED_ANGLE 10
 #define GREEN_ANGLE 45
 #define PURPLE_ANGLE 90
 #define YELLOW_ANGLE 135
@@ -90,49 +90,56 @@ float distances[NUM_COLORS] = {0.0f};
 
 void recalibrate(){
     Serial.println("Recalibrating");
-    myMotor->step(10, BACKWARD, DOUBLE);
-    delay(200);
+    myMotor->step(12, BACKWARD, MICROSTEP);
+    delay(100);
     int i = 0;
     float similarity_max = 0.0;
     int col_class = 0;
-    while(true){
-          Serial.println("Here");
-          getNormalizedColor();
-          col_class = getColorClass();
-          printColourName(col_class);
-          if(similarity_max > distances[col_class] and col_class == COL_BLUE or col_class == COL_PURPLE){
-              myMotor->step(5, BACKWARD, DOUBLE);
-              delay(200);
-              getNormalizedColor();
-              col_class = getColorClass();
-              if (col_class == COL_NOTHING){
-                 myMotor->step(5, FORWARD, DOUBLE);
-                 delay(200);
-                }
-              if (maxIdx >= VALID_COLORS){
-                  move_to_color(secondMaxIdx);
-               }
-              else{
-                move_to_color(maxIdx);
-               }
-              myMotor->step(10, FORWARD, DOUBLE);
-              delay(150);
-              return;
-              
-            }
-          if(col_class == COL_BLUE or col_class == COL_PURPLE){
-              similarity_max = max(distances[col_class],similarity_max);
-              getNormalizedColor();
-              similarity_max = min(distances[col_class], similarity_max);
-            }
-
-          myMotor->step(1, FORWARD, MICROSTEP);
-          delay(50);
-          // Not sure on the resolution of microstep relative to regular step
-          i+=1;
-          if (i == 8){
+    while(true)
+    {
+      Serial.println("Here");
+      getNormalizedColor();
+      col_class = getColorClass();
+      printColourName(col_class);
+      if(similarity_max > distances[col_class] and col_class == COL_BLUE or col_class == COL_PURPLE)
+      {
+        myMotor->step(5, BACKWARD, MICROSTEP);
+        delay(100);
+        getNormalizedColor();
+        col_class = getColorClass();
+        
+        if (col_class == COL_NOTHING)
+        {
+          myMotor->step(5, FORWARD, MICROSTEP);
+          delay(100);
+        }
+        
+        if (maxIdx >= VALID_COLORS)
+        {
+          move_to_color(secondMaxIdx);
+        }
+        else
+        {
+          move_to_color(maxIdx);
+        }
+        
+        myMotor->step(11, FORWARD, MICROSTEP);
+        delay(150);
+        return;
+      }
+      if(col_class == COL_BLUE or col_class == COL_PURPLE)
+      {
+        similarity_max = max(distances[col_class],similarity_max);
+        getNormalizedColor();
+        similarity_max = min(distances[col_class], similarity_max);
+      }
+      myMotor->step(1, FORWARD, MICROSTEP);
+      delay(50);
+      // Not sure on the resolution of microstep relative to regular step
+      i+=1;
+      if (i == 12){
             //This is to avoid the stepper motor 
-            myMotor->step(10, BACKWARD, DOUBLE);
+            myMotor->step(12, BACKWARD, MICROSTEP);
             delay(200);
             i = 0;
             }
@@ -362,17 +369,8 @@ void setup(void) {
   // Now we're ready to get readings!
 }
 
-void loop(void) {
 
-    for(int i = 0; i < 100; i++)
-    { 
-     Serial.println("Back");
-    arm_servo.write(10);
-    delay(500);
-    Serial.println("Forward");
-    arm_servo.write(140);
-    delay(100);
-    }
+void loop(void) {
 
   // Step 1: Get normalized colour vector
   getNormalizedColor();
@@ -381,15 +379,50 @@ void loop(void) {
   if(all_ready){
 //  Receneter the item
     if(colClass == COL_NOTHING){
-         Serial.print(rNorm, 3); Serial.print(",");
-         Serial.print(gNorm, 3); Serial.print(",");
-         Serial.print(bNorm, 3);  Serial.print(",");
-         if (colClass != COL_BLUE){
-            printColourName(colClass); 
-         }
-         recalibrate();
-         getNormalizedColor();
-         colClass = getColorClass();
+       Serial.println("Start recalibrate maybe");
+        myMotor->step(3, FORWARD, MICROSTEP);  
+        delay(100);
+        getNormalizedColor();
+        colClass = getColorClass(); 
+        if(colClass == COL_NOTHING)
+        {
+          myMotor->step(6, BACKWARD, MICROSTEP); 
+          delay(100);
+          getNormalizedColor();
+          colClass = getColorClass();
+           if(colClass == COL_NOTHING)
+           {
+              myMotor->step(3, FORWARD, MICROSTEP); 
+              delay(100);
+              getNormalizedColor();
+              colClass = getColorClass();
+              if(colClass == COL_NOTHING)
+              {
+                Serial.print(rNorm, 3); Serial.print(",");
+                Serial.print(gNorm, 3); Serial.print(",");
+                Serial.print(bNorm, 3);  Serial.print(",");
+                if (colClass != COL_BLUE)
+                {
+                  printColourName(colClass); 
+                }
+                recalibrate();
+                getNormalizedColor();
+                colClass = getColorClass();
+              }
+              else
+              {
+                Serial.println("SKIP IT!! 3");
+              }
+           }
+           else
+           {
+              Serial.println("SKIP IT!! 2");
+           }
+        }
+        else
+        {
+          Serial.println("SKIP IT!! 1");
+        }
       }
     
   }  
@@ -417,9 +450,9 @@ void loop(void) {
     maxIdx = 0;
     secondMaxIdx = 0;
 
-    myMotor->step(10, FORWARD, DOUBLE);
-    
-  delay(200);
+  Serial.println("Step");
+    myMotor->step(10, FORWARD, MICROSTEP);  
+  delay(100);
   
-
+  
 }

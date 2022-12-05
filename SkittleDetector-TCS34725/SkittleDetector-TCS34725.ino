@@ -451,7 +451,7 @@ void loop(void) {
     secondMaxIdx = 0;
 
   Serial.println("Step");
-    myMotor->step(10, FORWARD, MICROSTEP);  
+    myMotor->step(10, FORWARD, SINGLE);  
   delay(100);
   
   

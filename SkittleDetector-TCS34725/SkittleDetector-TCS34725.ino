@@ -31,8 +31,8 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
  * Global colour sensing variables
  */
 #define SERVO_ARM_PIN 12
-#define SERVO_TUBE_PIN 11
-#define NUM_COLORS  9
+#define SERVO_TUBE_PIN 12
+#define NUM_COLORS  20
 #define VALID_COLORS 7
 // Skittle colours to indices
 #define COL_RED     0
@@ -44,6 +44,19 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 #define COL_PURPLE  6
 #define COL_NOTHING 7
 #define COL_BLUE 8
+#define COL_BLUE_WOOD 9
+#define COL_DARK_RED 10
+#define COL_EDGE_DARK_RED 11
+#define COL_ORANGE_2 12
+#define COL_DARK_RED_2 13
+#define COL_WOOD_2 14
+#define COL_WOOD_3 15
+#define COL_WOOD_4 16
+#define COL_WOOD_5 17
+#define COL_PURPLE_2 18
+#define COL_PURPLE_3 19
+
+
 
 // Names for colours
 #define COLNAME_RED     "RED"
@@ -55,6 +68,10 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 #define COLNAME_PURPLE  "PURPLE"
 #define COLNAME_NOTHING "WOOD"
 #define COLNAME_BLUE "BLUE"
+#define COLNAME_BLUE_WOOD "BLUE WOOD"
+#define COLNAME_DARK_RED "DARK RED"
+
+
 // RGB channels in the array
 #define CHANNEL_R   0
 #define CHANNEL_G   1
@@ -168,23 +185,20 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_B][COL_GREEN] = 0.354;
 
   // S0.928,0.319,0.194
-  trainingColors[CHANNEL_R][COL_ORANGE] = 0.901;
-  trainingColors[CHANNEL_G][COL_ORANGE] = 0.375;
-  trainingColors[CHANNEL_B][COL_ORANGE] = 0.217;
+  trainingColors[CHANNEL_R][COL_ORANGE] = 0.922;
+  trainingColors[CHANNEL_G][COL_ORANGE] = 0.332;
+  trainingColors[CHANNEL_B][COL_ORANGE] = 0.201;
   //0.880,0.389,0.272
-   trainingColors[CHANNEL_R][COL_S_ORANGE] = 0.866;
-  trainingColors[CHANNEL_G][COL_S_ORANGE] = 0.415;
-  trainingColors[CHANNEL_B][COL_S_ORANGE] = 0.277;
+
+  trainingColors[CHANNEL_R][COL_S_ORANGE] = 0.867;
+  trainingColors[CHANNEL_G][COL_S_ORANGE] = 0.404;
+  trainingColors[CHANNEL_B][COL_S_ORANGE] = 0.292;
 
   // 0.766,0.601,0.226
   trainingColors[CHANNEL_R][COL_YELLOW] = 0.760;
   trainingColors[CHANNEL_G][COL_YELLOW] = 0.608;
   trainingColors[CHANNEL_B][COL_YELLOW] = 0.228;
-  // Skittle: purple 0.633,0.575,0.518
-  trainingColors[CHANNEL_R][COL_PURPLE] = 0.633;
-  trainingColors[CHANNEL_G][COL_PURPLE] = 0.575;
-  trainingColors[CHANNEL_B][COL_PURPLE] = 0.518;
-
+  
   //0.730,0.549,0.407
   trainingColors[CHANNEL_R][COL_NOTHING] = 0.730;
   trainingColors[CHANNEL_G][COL_NOTHING] = 0.549;
@@ -193,6 +207,59 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_R][COL_BLUE] = 0.621;
   trainingColors[CHANNEL_G][COL_BLUE] = 0.563;
   trainingColors[CHANNEL_B][COL_BLUE] = 0.546;
+
+  trainingColors[CHANNEL_R][COL_BLUE_WOOD] = 0.642;
+  trainingColors[CHANNEL_G][COL_BLUE_WOOD] = 0.568;
+  trainingColors[CHANNEL_B][COL_BLUE_WOOD] = 0.516;
+  
+
+
+  trainingColors[CHANNEL_R][COL_DARK_RED] = 0.898;
+  trainingColors[CHANNEL_G][COL_DARK_RED] = 0.340;
+  trainingColors[CHANNEL_B][COL_DARK_RED] = 0.280;
+
+  
+  trainingColors[CHANNEL_R][COL_EDGE_DARK_RED] = 0.868;
+  trainingColors[CHANNEL_G][COL_EDGE_DARK_RED] = 0.382;
+  trainingColors[CHANNEL_B][COL_EDGE_DARK_RED] = 0.319;
+
+  trainingColors[CHANNEL_R][COL_ORANGE_2] = 0.895;
+  trainingColors[CHANNEL_G][COL_ORANGE_2] = 0.368;
+  trainingColors[CHANNEL_B][COL_ORANGE_2] = 0.253;
+
+  trainingColors[CHANNEL_R][COL_DARK_RED_2] = 0.803;
+  trainingColors[CHANNEL_G][COL_DARK_RED_2] = 0.472;
+  trainingColors[CHANNEL_B][COL_DARK_RED_2] = 0.363;
+  
+  trainingColors[CHANNEL_R][COL_WOOD_2] = 0.773;
+  trainingColors[CHANNEL_G][COL_WOOD_2] = 0.517;
+  trainingColors[CHANNEL_B][COL_WOOD_2] = 0.367;
+
+  trainingColors[CHANNEL_R][COL_WOOD_3] = 0.838;
+  trainingColors[CHANNEL_G][COL_WOOD_3] = 0.423;
+  trainingColors[CHANNEL_B][COL_WOOD_3] = 0.346;
+
+  trainingColors[CHANNEL_R][COL_WOOD_4] = 0.683;
+  trainingColors[CHANNEL_G][COL_WOOD_4] = 0.588;
+  trainingColors[CHANNEL_B][COL_WOOD_4] = 0.434;
+
+// Skittle: purple 0.633,0.575,0.518
+  trainingColors[CHANNEL_R][COL_PURPLE] = 0.699;
+  trainingColors[CHANNEL_G][COL_PURPLE] = 0.544;
+  trainingColors[CHANNEL_B][COL_PURPLE] = 0.465;
+  
+  trainingColors[CHANNEL_R][COL_PURPLE_2] = 0.714;
+  trainingColors[CHANNEL_G][COL_PURPLE_2] = 0.533;
+  trainingColors[CHANNEL_B][COL_PURPLE_2] = 0.453;
+
+  trainingColors[CHANNEL_R][COL_PURPLE_3] = 0.706;
+  trainingColors[CHANNEL_G][COL_PURPLE_3] = 0.540;
+  trainingColors[CHANNEL_B][COL_PURPLE_3] = 0.459;
+
+  trainingColors[CHANNEL_R][COL_WOOD_5] = 0.714;
+  trainingColors[CHANNEL_G][COL_WOOD_5] = 0.544;
+  trainingColors[CHANNEL_B][COL_WOOD_5] = 0.442;
+
 }
 
 
@@ -268,13 +335,12 @@ void printColourName(int colIdx) {
     case COL_ORANGE:
       Serial.println(COLNAME_ORANGE);
       break;
-    case COL_S_ORANGE:
-      Serial.println(COLNAME_S_ORANGE);
-      break;
     case COL_YELLOW:
       Serial.println(COLNAME_YELLOW);
       break;
     case COL_PURPLE:
+    case COL_PURPLE_2:
+    case COL_PURPLE_3:
       Serial.println(COLNAME_PURPLE);
       break;
     case COL_NOTHING:
@@ -283,8 +349,31 @@ void printColourName(int colIdx) {
     case COL_BLUE:
       Serial.println(COLNAME_BLUE);
       break;
+    case COL_BLUE_WOOD:
+      Serial.println(COLNAME_BLUE_WOOD);
+      break;
+    case COL_DARK_RED:
+      Serial.println("Dark Red");
+      break;
+    case COL_EDGE_DARK_RED:
+      Serial.println("Dark Red Edge");
+      break;
+    case COL_ORANGE_2:
+      Serial.println("Orange Edge");
+      break;
+    case COL_DARK_RED_2:
+      Serial.println("WOOD");
+      break;   
+    case COL_WOOD_2:
+    case COL_WOOD_3:
+    case COL_WOOD_4:
+    case COL_WOOD_5:
+    case COL_S_ORANGE:
+      Serial.println("WOOD");
+      break;
+      
     default:
-      Serial.print("ERROR");
+      Serial.println("ERROR");
       break;
   }
 }
@@ -371,90 +460,115 @@ void setup(void) {
   // Now we're ready to get readings!
 }
 
-
+//
+//void loop(void) {
+//
+//  // Step 1: Get normalized colour vector
+//  getNormalizedColor();
+//  int colClass = getColorClass(); 
+//    //Avoid redundant steps in calibration
+//  if(all_ready){
+////  Receneter the item
+//    if(colClass == COL_NOTHING){
+//       Serial.println("Start recalibrate maybe");
+//        myMotor->step(3, FORWARD, MICROSTEP);  
+//        delay(100);
+//        getNormalizedColor();
+//        colClass = getColorClass(); 
+//        if(colClass == COL_NOTHING)
+//        {
+//          myMotor->step(6, BACKWARD, MICROSTEP); 
+//          delay(100);
+//          getNormalizedColor();
+//          colClass = getColorClass();
+//           if(colClass == COL_NOTHING)
+//           {
+//              myMotor->step(3, FORWARD, MICROSTEP); 
+//              delay(100);
+//              getNormalizedColor();
+//              colClass = getColorClass();
+//              if(colClass == COL_NOTHING)
+//              {
+//                Serial.print(rNorm, 3); Serial.print(",");
+//                Serial.print(gNorm, 3); Serial.print(",");
+//                Serial.print(bNorm, 3);  Serial.print(",");
+//                if (colClass != COL_BLUE)
+//                {
+//                  printColourName(colClass); 
+//                }
+//                recalibrate();
+//                getNormalizedColor();
+//                colClass = getColorClass();
+//              }
+//              else
+//              {
+//                Serial.println("SKIP IT!! 3");
+//              }
+//           }
+//           else
+//           {
+//              Serial.println("SKIP IT!! 2");
+//           }
+//        }
+//        else
+//        {
+//          Serial.println("SKIP IT!! 1");
+//        }
+//      }
+//    
+//  }  
+//  // Step 2: Output colour
+//    Serial.print(rNorm, 3); Serial.print(",");
+//    Serial.print(gNorm, 3); Serial.print(",");
+//    Serial.print(bNorm, 3);  Serial.print(",");
+//    if (colClass != COL_BLUE){
+//    printColourName(colClass);  
+//    }
+//    //rotation ++;
+//  Serial.println("");
+//    if (maxIdx >= VALID_COLORS){
+//      printColourName(secondMaxIdx);
+//      for(int i = 0; i < NUM_COLORS; i++){
+//          Serial.print("C"); Serial.print(i);
+//          Serial.println(distances[i]);
+//        }
+//      move_to_color(secondMaxIdx);
+//      move_to_color(secondMaxIdx);
+//      }
+//    else{
+//       move_to_color(maxIdx);
+//    }
+//    maxIdx = 0;
+//    secondMaxIdx = 0;
+//
+//  Serial.println("Step");
+//    myMotor->step(10, FORWARD, SINGLE);  
+//  delay(100);
+//}
+int angle = 0;
 void loop(void) {
 
   // Step 1: Get normalized colour vector
   getNormalizedColor();
   int colClass = getColorClass(); 
     //Avoid redundant steps in calibration
-  if(all_ready){
-//  Receneter the item
-    if(colClass == COL_NOTHING){
-       Serial.println("Start recalibrate maybe");
-        myMotor->step(3, FORWARD, MICROSTEP);  
-        delay(100);
-        getNormalizedColor();
-        colClass = getColorClass(); 
-        if(colClass == COL_NOTHING)
-        {
-          myMotor->step(6, BACKWARD, MICROSTEP); 
-          delay(100);
-          getNormalizedColor();
-          colClass = getColorClass();
-           if(colClass == COL_NOTHING)
-           {
-              myMotor->step(3, FORWARD, MICROSTEP); 
-              delay(100);
-              getNormalizedColor();
-              colClass = getColorClass();
-              if(colClass == COL_NOTHING)
-              {
-                Serial.print(rNorm, 3); Serial.print(",");
-                Serial.print(gNorm, 3); Serial.print(",");
-                Serial.print(bNorm, 3);  Serial.print(",");
-                if (colClass != COL_BLUE)
-                {
-                  printColourName(colClass); 
-                }
-                recalibrate();
-                getNormalizedColor();
-                colClass = getColorClass();
-              }
-              else
-              {
-                Serial.println("SKIP IT!! 3");
-              }
-           }
-           else
-           {
-              Serial.println("SKIP IT!! 2");
-           }
-        }
-        else
-        {
-          Serial.println("SKIP IT!! 1");
-        }
-      }
-    
-  }  
+
   // Step 2: Output colour
+    Serial.print(angle % 10); Serial.print(" | ");
     Serial.print(rNorm, 3); Serial.print(",");
     Serial.print(gNorm, 3); Serial.print(",");
     Serial.print(bNorm, 3);  Serial.print(",");
-    if (colClass != COL_BLUE){
-    printColourName(colClass);  
-    }
-    //rotation ++;
-  Serial.println("");
-    if (maxIdx >= VALID_COLORS){
-      printColourName(secondMaxIdx);
-      for(int i = 0; i < NUM_COLORS; i++){
-          Serial.print("C"); Serial.print(i);
-          Serial.println(distances[i]);
-        }
-      move_to_color(secondMaxIdx);
-      move_to_color(secondMaxIdx);
-      }
-    else{
-       move_to_color(maxIdx);
-    }
-    maxIdx = 0;
-    secondMaxIdx = 0;
+    angle++;
+    printColourName(colClass);
 
-  Serial.println("Step");
-    myMotor->step(10, FORWARD, SINGLE);  
+
+    myMotor->step(1, FORWARD, MICROSTEP);
+   for(int i = 0; i < 5; i++){
+    arm_servo.write(0);
+    arm_servo.write(40);
+   }
+
   delay(100);
-  
-  
+
+
 }

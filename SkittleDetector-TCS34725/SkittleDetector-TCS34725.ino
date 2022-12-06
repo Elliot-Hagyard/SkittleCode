@@ -13,17 +13,16 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 1);
 
 // Example code for the Adafruit TCS34725 breakout library applied to Skittle colour classification.
-// This example uses RGB vectors for classification.  It also converts the RGB vector to a HSB colourspace, 
+// This example uses RGB vectors for classification.  It also converts the RGB vector to a HSB colourspace,
 // which is likely more robust for this classification, but does not implement the HSB classification.
-// (If you change to HSB, you will likely only need hue and saturation, and not brightness). 
+// (If you change to HSB, you will likely only need hue and saturation, and not brightness).
 
 // More information:
 // Breakout board: https://www.adafruit.com/product/1334
 // Library: https://github.com/adafruit/Adafruit_TCS34725
 // Installation instructions: https://learn.adafruit.com/adafruit-all-about-arduino-libraries-install-use/how-to-install-a-library
 
-   
-// Initialise TCS24725 with specific int time and gain values 
+// Initialise TCS24725 with specific int time and gain values
 // Note: 2-4 millisecond integration (sampling) times mean we can sample at about 250-500Hz
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
@@ -31,51 +30,56 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
  * Global colour sensing variables
  */
 #define SERVO_ARM_PIN 12
-#define SERVO_TUBE_PIN 12
-#define NUM_COLORS  20
-#define VALID_COLORS 7
+#define SERVO_TUBE_PIN 11
+#define NUM_COLORS 20
+#define VALID_COLORS 9
+#define NUM_EDGES 3
 // Skittle colours to indices
-#define COL_RED     0
-#define COL_S_RED     1
-#define COL_GREEN   2
-#define COL_ORANGE  3
-#define COL_S_ORANGE 4
-#define COL_YELLOW  5
-#define COL_PURPLE  6
-#define COL_NOTHING 7
-#define COL_BLUE 8
-#define COL_BLUE_WOOD 9
-#define COL_DARK_RED 10
-#define COL_EDGE_DARK_RED 11
-#define COL_ORANGE_2 12
+
+// Can't recreate
+#define COL_RED 0
+#define COL_S_RED 1
+#define COL_DARK_RED 2
+#define COL_GREEN 3
+#define COL_ORANGE 4
+#define COL_YELLOW 5
+#define COL_PURPLE 6
+#define COL_PURPLE_2 7
+#define COL_PURPLE_3 8
+
+// edge
+#define COL_EDGE_DARK_RED 9
+#define COL_ORANGE_EDGE 10
+#define COL_BLUE_WOOD 11
+int edge_color_array[3] = {COL_EDGE_DARK_RED, COL_ORANGE_EDGE, COL_BLUE_WOOD};
+// BLUE
+#define COL_BLUE 12
+// Wood
 #define COL_DARK_RED_2 13
-#define COL_WOOD_2 14
-#define COL_WOOD_3 15
-#define COL_WOOD_4 16
-#define COL_WOOD_5 17
-#define COL_PURPLE_2 18
-#define COL_PURPLE_3 19
-
-
+#define COL_NOTHING 14
+#define COL_WOOD_2 15
+#define COL_WOOD_3 16
+#define COL_WOOD_4 17
+#define COL_WOOD_5 18
+#define COL_WOOD_6 19
 
 // Names for colours
-#define COLNAME_RED     "RED"
+#define COLNAME_RED "RED"
 #define COLNAME_S_RED "S_RED"
-#define COLNAME_GREEN   "GREEN"
-#define COLNAME_ORANGE  "ORANGE"
+#define COLNAME_GREEN "GREEN"
+#define COLNAME_ORANGE "ORANGE"
 #define COLNAME_S_ORANGE "S_ORANGE"
-#define COLNAME_YELLOW  "YELLOW"
-#define COLNAME_PURPLE  "PURPLE"
+#define COLNAME_YELLOW "YELLOW"
+#define COLNAME_PURPLE "PURPLE"
 #define COLNAME_NOTHING "WOOD"
 #define COLNAME_BLUE "BLUE"
 #define COLNAME_BLUE_WOOD "BLUE WOOD"
 #define COLNAME_DARK_RED "DARK RED"
 
-
 // RGB channels in the array
-#define CHANNEL_R   0
-#define CHANNEL_G   1
-#define CHANNEL_B   2
+#define CHANNEL_R 0
+#define CHANNEL_G 1
+#define CHANNEL_B 2
 #define RED_ANGLE 10
 #define GREEN_ANGLE 45
 #define PURPLE_ANGLE 90
@@ -87,8 +91,8 @@ Servo tube_servo;
 Servo arm_servo;
 bool all_ready = false;
 int color_angle_array[5];
-int color_to_angle_index[VALID_COLORS] = {0,0,1,2,2,3,4};
-float trainingColors[3][NUM_COLORS];    // 3(rgb) x NUM_COLORS.
+int color_to_angle_index[VALID_COLORS+NUM_EDGES] = {0, 0, 0, 1, 2, 3, 4, 4, 4, 0, 2, 4};
+float trainingColors[3][NUM_COLORS]; // 3(rgb) x NUM_COLORS.
 int rotation = 0;
 // Last read colour
 float rNorm = 0.0f;
@@ -105,78 +109,71 @@ int secondMaxIdx = 0;
 float lastCosine = 0;
 float distances[NUM_COLORS] = {0.0f};
 
-void recalibrate(){
-    Serial.println("Recalibrating");
-    myMotor->step(12, BACKWARD, MICROSTEP);
-    delay(100);
-    int i = 0;
-    float similarity_max = 0.0;
-    int col_class = 0;
-    while(true)
+void recalibrate()
+{
+  Serial.println("Recalibrating");
+  myMotor->step(20, BACKWARD, MICROSTEP);
+  delay(100);
+  int i = 0;
+  float similarity_max = 0.0;
+  int col_class = 0;
+  while (true)
+  {
+    Serial.println("Here");
+    getNormalizedColor();
+    col_class = getColorClass();
+    printColourName(col_class);
+    if (similarity_max > distances[col_class] and col_class <= COL_BLUE)
     {
-      Serial.println("Here");
+      delay(100);
       getNormalizedColor();
       col_class = getColorClass();
-      printColourName(col_class);
-      if(similarity_max > distances[col_class] and col_class == COL_BLUE or col_class == COL_PURPLE)
+      if (maxIdx >= VALID_COLORS)
       {
-        myMotor->step(5, BACKWARD, MICROSTEP);
-        delay(100);
-        getNormalizedColor();
-        col_class = getColorClass();
-        
-        if (col_class == COL_NOTHING)
-        {
-          myMotor->step(5, FORWARD, MICROSTEP);
-          delay(100);
-        }
-        
-        if (maxIdx >= VALID_COLORS)
-        {
-          move_to_color(secondMaxIdx);
-        }
-        else
-        {
-          move_to_color(maxIdx);
-        }
-        
-        myMotor->step(11, FORWARD, MICROSTEP);
-        delay(150);
-        return;
+        move_to_color(secondMaxIdx);
       }
-      if(col_class == COL_BLUE or col_class == COL_PURPLE)
+      else
       {
-        similarity_max = max(distances[col_class],similarity_max);
-        getNormalizedColor();
-        similarity_max = min(distances[col_class], similarity_max);
+        move_to_color(maxIdx);
       }
-      myMotor->step(1, FORWARD, MICROSTEP);
-      delay(50);
-      // Not sure on the resolution of microstep relative to regular step
-      i+=1;
-      if (i == 12){
-            //This is to avoid the stepper motor 
-            myMotor->step(12, BACKWARD, MICROSTEP);
-            delay(200);
-            i = 0;
-            }
 
+      myMotor->step(10, FORWARD, MICROSTEP);
+      delay(150);
+      return;
+    }
+    if (col_class <= COL_BLUE)
+    {
+      similarity_max = max(distances[col_class], similarity_max);
+      getNormalizedColor();
+      similarity_max = min(distances[col_class], similarity_max);
+    }
+    myMotor->step(1, FORWARD, MICROSTEP);
+    delay(50);
+    // Not sure on the resolution of microstep relative to regular step
+    i += 1;
+    if (i == 12)
+    {
+      // This is to avoid the stepper motor
+      myMotor->step(12, BACKWARD, MICROSTEP);
+      delay(150);
+      i = 0;
     }
   }
+}
 
 /*
  * Colour sensing
  */
-void initializeTrainingColors() {
-
+void initializeTrainingColors()
+{
 
   // Skittle: red 0.848  0.399 0.349
   // 0.912,0.304,0.274
-  trainingColors[CHANNEL_R][COL_RED] =  0.869;
+  trainingColors[CHANNEL_R][COL_RED] = 0.869;
   trainingColors[CHANNEL_G][COL_RED] = 0.377;
   trainingColors[CHANNEL_B][COL_RED] = 0.320;
   // RED HIGH 0.885,0.356,0.299
-  trainingColors[CHANNEL_R][COL_S_RED] =  0.888;
+  trainingColors[CHANNEL_R][COL_S_RED] = 0.888;
   trainingColors[CHANNEL_G][COL_S_RED] = 0.351;
   trainingColors[CHANNEL_B][COL_S_RED] = 0.296;
   // Skittle: green
@@ -188,22 +185,22 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_R][COL_ORANGE] = 0.922;
   trainingColors[CHANNEL_G][COL_ORANGE] = 0.332;
   trainingColors[CHANNEL_B][COL_ORANGE] = 0.201;
-  //0.880,0.389,0.272
+  // 0.880,0.389,0.272
 
-  trainingColors[CHANNEL_R][COL_S_ORANGE] = 0.867;
-  trainingColors[CHANNEL_G][COL_S_ORANGE] = 0.404;
-  trainingColors[CHANNEL_B][COL_S_ORANGE] = 0.292;
+  trainingColors[CHANNEL_R][COL_WOOD_6] = 0.867;
+  trainingColors[CHANNEL_G][COL_WOOD_6] = 0.404;
+  trainingColors[CHANNEL_B][COL_WOOD_6] = 0.292;
 
   // 0.766,0.601,0.226
   trainingColors[CHANNEL_R][COL_YELLOW] = 0.760;
   trainingColors[CHANNEL_G][COL_YELLOW] = 0.608;
   trainingColors[CHANNEL_B][COL_YELLOW] = 0.228;
-  
-  //0.730,0.549,0.407
+
+  // 0.730,0.549,0.407
   trainingColors[CHANNEL_R][COL_NOTHING] = 0.730;
   trainingColors[CHANNEL_G][COL_NOTHING] = 0.549;
   trainingColors[CHANNEL_B][COL_NOTHING] = 0.407;
-  //0.621,0.563,0.546
+  // 0.621,0.563,0.546
   trainingColors[CHANNEL_R][COL_BLUE] = 0.621;
   trainingColors[CHANNEL_G][COL_BLUE] = 0.563;
   trainingColors[CHANNEL_B][COL_BLUE] = 0.546;
@@ -211,26 +208,23 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_R][COL_BLUE_WOOD] = 0.642;
   trainingColors[CHANNEL_G][COL_BLUE_WOOD] = 0.568;
   trainingColors[CHANNEL_B][COL_BLUE_WOOD] = 0.516;
-  
-
 
   trainingColors[CHANNEL_R][COL_DARK_RED] = 0.898;
   trainingColors[CHANNEL_G][COL_DARK_RED] = 0.340;
   trainingColors[CHANNEL_B][COL_DARK_RED] = 0.280;
 
-  
   trainingColors[CHANNEL_R][COL_EDGE_DARK_RED] = 0.868;
   trainingColors[CHANNEL_G][COL_EDGE_DARK_RED] = 0.382;
   trainingColors[CHANNEL_B][COL_EDGE_DARK_RED] = 0.319;
 
-  trainingColors[CHANNEL_R][COL_ORANGE_2] = 0.895;
-  trainingColors[CHANNEL_G][COL_ORANGE_2] = 0.368;
-  trainingColors[CHANNEL_B][COL_ORANGE_2] = 0.253;
+  trainingColors[CHANNEL_R][COL_WOOD_6] = 0.895;
+  trainingColors[CHANNEL_G][COL_WOOD_6] = 0.368;
+  trainingColors[CHANNEL_B][COL_WOOD_6] = 0.253;
 
   trainingColors[CHANNEL_R][COL_DARK_RED_2] = 0.803;
   trainingColors[CHANNEL_G][COL_DARK_RED_2] = 0.472;
   trainingColors[CHANNEL_B][COL_DARK_RED_2] = 0.363;
-  
+
   trainingColors[CHANNEL_R][COL_WOOD_2] = 0.773;
   trainingColors[CHANNEL_G][COL_WOOD_2] = 0.517;
   trainingColors[CHANNEL_B][COL_WOOD_2] = 0.367;
@@ -243,11 +237,11 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_G][COL_WOOD_4] = 0.588;
   trainingColors[CHANNEL_B][COL_WOOD_4] = 0.434;
 
-// Skittle: purple 0.633,0.575,0.518
+  // Skittle: purple 0.633,0.575,0.518
   trainingColors[CHANNEL_R][COL_PURPLE] = 0.699;
   trainingColors[CHANNEL_G][COL_PURPLE] = 0.544;
   trainingColors[CHANNEL_B][COL_PURPLE] = 0.465;
-  
+
   trainingColors[CHANNEL_R][COL_PURPLE_2] = 0.714;
   trainingColors[CHANNEL_G][COL_PURPLE_2] = 0.533;
   trainingColors[CHANNEL_B][COL_PURPLE_2] = 0.453;
@@ -259,59 +253,61 @@ void initializeTrainingColors() {
   trainingColors[CHANNEL_R][COL_WOOD_5] = 0.714;
   trainingColors[CHANNEL_G][COL_WOOD_5] = 0.544;
   trainingColors[CHANNEL_B][COL_WOOD_5] = 0.442;
-
 }
 
-
-void getNormalizedColor() {
-  uint16_t r, g, b, c, colorTemp, lux;  
+void getNormalizedColor()
+{
+  uint16_t r, g, b, c, colorTemp, lux;
   tcs.getRawData(&r, &g, &b, &c);
 
-  float lenVec = sqrt((float)r*(float)r + (float)g*(float)g + (float)b*(float)b);
+  float lenVec = sqrt((float)r * (float)r + (float)g * (float)g + (float)b * (float)b);
 
-  // Note: the Arduino only has 2k of RAM, so rNorm/gNorm/bNorm are global variables. 
-  rNorm = (float)r/lenVec;
-  gNorm = (float)g/lenVec;
-  bNorm = (float)b/lenVec;
+  // Note: the Arduino only has 2k of RAM, so rNorm/gNorm/bNorm are global variables.
+  rNorm = (float)r / lenVec;
+  gNorm = (float)g / lenVec;
+  bNorm = (float)b / lenVec;
 
   // Also convert to HSB:
   RGBtoHSV(rNorm, gNorm, bNorm, &hue, &saturation, &brightness);
 }
 
-void flush_feeder(){
-    myMotor->step(200, FORWARD, DOUBLE);
-  
-  
-  
-  }
+void flush_feeder()
+{
+  myMotor->step(220, FORWARD, DOUBLE);
+}
 
-int getColorClass() {
+int getColorClass()
+{
 
-  // Step 1: Compute the cosine similarity between the query vector and all the training colours. 
-  for (int i=0; i<NUM_COLORS; i++) {
+  // Step 1: Compute the cosine similarity between the query vector and all the training colours.
+  for (int i = 0; i < NUM_COLORS; i++)
+  {
     // For normalized (unit length) vectors, the cosine similarity is the same as the dot product of the two vectors.
-    float cosineSimilarity = rNorm*trainingColors[CHANNEL_R][i] + gNorm*trainingColors[CHANNEL_G][i] + bNorm*trainingColors[CHANNEL_B][i];
+    float cosineSimilarity = rNorm * trainingColors[CHANNEL_R][i] + gNorm * trainingColors[CHANNEL_G][i] + bNorm * trainingColors[CHANNEL_B][i];
     distances[i] = cosineSimilarity;
     // DEBUG: Output cosines
-    //Serial.print("   C"); Serial.print(i); Serial.print(": "); Serial.println(cosineSimilarity, 3);
+    // Serial.print("   C"); Serial.print(i); Serial.print(": "); Serial.println(cosineSimilarity, 3);
   }
   // Step 2: Find the vector with the highest cosine (meaning, the closest to the training color)
   float maxVal = distances[0];
-  for (int i=0; i<NUM_COLORS; i++) {
-    if (distances[i] > maxVal) {
-      //If senses wood, store second closest color
+  for (int i = 0; i < NUM_COLORS; i++)
+  {
+    if (distances[i] > maxVal)
+    {
+      // If senses wood, store second closest color
 
       maxVal = distances[i];
       maxIdx = i;
-      if(i < VALID_COLORS){
-          secondMaxIdx = maxIdx;
+      if (i < VALID_COLORS + NUM_EDGES)
+      {
+        secondMaxIdx = maxIdx;
       }
     }
   }
   //
 
-  if(all_ready){
-    
+  if (all_ready)
+  {
   }
   // Step 3: Return the index of the minimum color
   lastCosine = maxVal;
@@ -319,62 +315,63 @@ int getColorClass() {
   return maxIdx;
 }
 
-
 // Convert from colour index to colour name.
-void printColourName(int colIdx) {
-  switch (colIdx) {
-    case COL_RED:
-      Serial.println(COLNAME_RED);
-      break;
-    case COL_S_RED:
-      Serial.println(COLNAME_S_RED);
-      break;
-    case COL_GREEN:
-      Serial.println(COLNAME_GREEN);
-      break;
-    case COL_ORANGE:
-      Serial.println(COLNAME_ORANGE);
-      break;
-    case COL_YELLOW:
-      Serial.println(COLNAME_YELLOW);
-      break;
-    case COL_PURPLE:
-    case COL_PURPLE_2:
-    case COL_PURPLE_3:
-      Serial.println(COLNAME_PURPLE);
-      break;
-    case COL_NOTHING:
-      Serial.println(COLNAME_NOTHING);
-      break;
-    case COL_BLUE:
-      Serial.println(COLNAME_BLUE);
-      break;
-    case COL_BLUE_WOOD:
-      Serial.println(COLNAME_BLUE_WOOD);
-      break;
-    case COL_DARK_RED:
-      Serial.println("Dark Red");
-      break;
-    case COL_EDGE_DARK_RED:
-      Serial.println("Dark Red Edge");
-      break;
-    case COL_ORANGE_2:
-      Serial.println("Orange Edge");
-      break;
-    case COL_DARK_RED_2:
-      Serial.println("WOOD");
-      break;   
-    case COL_WOOD_2:
-    case COL_WOOD_3:
-    case COL_WOOD_4:
-    case COL_WOOD_5:
-    case COL_S_ORANGE:
-      Serial.println("WOOD");
-      break;
-      
-    default:
-      Serial.println("ERROR");
-      break;
+void printColourName(int colIdx)
+{
+  switch (colIdx)
+  {
+  case COL_RED:
+    Serial.println(COLNAME_RED);
+    break;
+  case COL_S_RED:
+    Serial.println(COLNAME_S_RED);
+    break;
+  case COL_GREEN:
+    Serial.println(COLNAME_GREEN);
+    break;
+  case COL_ORANGE:
+    Serial.println(COLNAME_ORANGE);
+    break;
+  case COL_YELLOW:
+    Serial.println(COLNAME_YELLOW);
+    break;
+  case COL_PURPLE:
+  case COL_PURPLE_2:
+  case COL_PURPLE_3:
+    Serial.println(COLNAME_PURPLE);
+    break;
+  case COL_NOTHING:
+    Serial.println(COLNAME_NOTHING);
+    break;
+  case COL_BLUE:
+    Serial.println(COLNAME_BLUE);
+    break;
+  case COL_BLUE_WOOD:
+    Serial.println(COLNAME_BLUE_WOOD);
+    break;
+  case COL_DARK_RED:
+    Serial.println("Dark Red");
+    break;
+  case COL_EDGE_DARK_RED:
+    Serial.println("Dark Red Edge");
+    break;
+  case COL_ORANGE_EDGE:
+    Serial.println("Orange Edge");
+    break;
+  case COL_DARK_RED_2:
+    Serial.println("WOOD");
+    break;
+  case COL_WOOD_2:
+  case COL_WOOD_3:
+  case COL_WOOD_4:
+  case COL_WOOD_5:
+  case COL_WOOD_6:
+    Serial.println("WOOD");
+    break;
+
+  default:
+    Serial.println("ERROR");
+    break;
   }
 }
 
@@ -382,71 +379,84 @@ void printColourName(int colIdx) {
  * Colour converstion
  */
 
-// RGB to HSV.  From https://www.cs.rit.edu/~ncs/color/t_convert.html . 
-void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {  
+// RGB to HSV.  From https://www.cs.rit.edu/~ncs/color/t_convert.html .
+void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v)
+{
   float minVal = min(min(r, g), b);
   float maxVal = max(max(r, g), b);
-  *v = maxVal;       // v
+  *v = maxVal; // v
   float delta = maxVal - minVal;
-  if( maxVal != 0 )
-    *s = delta / maxVal;   // s
-  else {
+  if (maxVal != 0)
+    *s = delta / maxVal; // s
+  else
+  {
     // r = g = b = 0    // s = 0, v is undefined
     *s = 0;
     *h = -1;
     return;
   }
-  if( r == maxVal )
-    *h = ( g - b ) / delta;   // between yellow & magenta
-  else if( g == maxVal )
-    *h = 2 + ( b - r ) / delta; // between cyan & yellow
+  if (r == maxVal)
+    *h = (g - b) / delta; // between yellow & magenta
+  else if (g == maxVal)
+    *h = 2 + (b - r) / delta; // between cyan & yellow
   else
-    *h = 4 + ( r - g ) / delta; // between magenta & cyan
-  *h *= 60;       // degrees
-  if( *h < 0 )
+    *h = 4 + (r - g) / delta; // between magenta & cyan
+  *h *= 60;                   // degrees
+  if (*h < 0)
     *h += 360;
 }
 
-void move_to_color(int color){
-      
-     //Serial.println(color);
-     color = color_to_angle_index[color];
-     int delta_angle = abs(cur_angle - color_angle_array[color]);
-     cur_angle = color_angle_array[color];
-     //Serial.println(color);
-     //Serial.println(cur_angle);
-     delay(4*delta_angle);
-     tube_servo.write(cur_angle);
-     delay(3*delta_angle);
+void move_to_color(int color)
+{
+
+  Serial.println(color);
+  color = color_to_angle_index[color];
+  int delta_angle = abs(cur_angle - color_angle_array[color]);
+  cur_angle = color_angle_array[color];
+  // Serial.println(color);
+  // Serial.println(cur_angle);
+  if(delta_angle != 0){
+    delay(4 * delta_angle);
+    tube_servo.write(cur_angle);
+    delay(3 * delta_angle);
   }
+}
 /*
  * Main Arduino functions
  */
- 
-void setup(void) {
+
+void setup(void)
+{
   Serial.begin(115200);
   Serial.print("here");
-  while (!Serial);
+  while (!Serial)
+    ;
   tube_servo.attach(SERVO_TUBE_PIN);
   arm_servo.attach(SERVO_ARM_PIN);
   Serial.println("Stepper test!");
 
-  if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
-  // if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
+  if (!AFMS.begin())
+  { // create with the default frequency 1.6KHz
+    // if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
     Serial.println("Could not find Motor Shield. Check wiring.");
-    while (1);
+    while (1)
+      ;
   }
   Serial.println("Motor Shield found.");
 
-  myMotor->setSpeed(10);  // 10 rpm
-  // Populate array of training colours for classification. 
+  myMotor->setSpeed(10); // 10 rpm
+  // Populate array of training colours for classification.
   initializeTrainingColors();
-  
-  if (tcs.begin()) {
+
+  if (tcs.begin())
+  {
     Serial.println("Found sensor");
-  } else {
+  }
+  else
+  {
     Serial.println("No TCS34725 found ... check your connections");
-    while (1);
+    while (1)
+      ;
   }
   color_angle_array[0] = RED_ANGLE;
   color_angle_array[1] = GREEN_ANGLE;
@@ -461,68 +471,19 @@ void setup(void) {
 }
 
 //
-//void loop(void) {
+// void loop(void) {
 //
 //  // Step 1: Get normalized colour vector
 //  getNormalizedColor();
-//  int colClass = getColorClass(); 
+//  int colClass = getColorClass();
 //    //Avoid redundant steps in calibration
-//  if(all_ready){
-////  Receneter the item
-//    if(colClass == COL_NOTHING){
-//       Serial.println("Start recalibrate maybe");
-//        myMotor->step(3, FORWARD, MICROSTEP);  
-//        delay(100);
-//        getNormalizedColor();
-//        colClass = getColorClass(); 
-//        if(colClass == COL_NOTHING)
-//        {
-//          myMotor->step(6, BACKWARD, MICROSTEP); 
-//          delay(100);
-//          getNormalizedColor();
-//          colClass = getColorClass();
-//           if(colClass == COL_NOTHING)
-//           {
-//              myMotor->step(3, FORWARD, MICROSTEP); 
-//              delay(100);
-//              getNormalizedColor();
-//              colClass = getColorClass();
-//              if(colClass == COL_NOTHING)
-//              {
-//                Serial.print(rNorm, 3); Serial.print(",");
-//                Serial.print(gNorm, 3); Serial.print(",");
-//                Serial.print(bNorm, 3);  Serial.print(",");
-//                if (colClass != COL_BLUE)
-//                {
-//                  printColourName(colClass); 
-//                }
-//                recalibrate();
-//                getNormalizedColor();
-//                colClass = getColorClass();
-//              }
-//              else
-//              {
-//                Serial.println("SKIP IT!! 3");
-//              }
-//           }
-//           else
-//           {
-//              Serial.println("SKIP IT!! 2");
-//           }
-//        }
-//        else
-//        {
-//          Serial.println("SKIP IT!! 1");
-//        }
-//      }
-//    
-//  }  
+//
 //  // Step 2: Output colour
 //    Serial.print(rNorm, 3); Serial.print(",");
 //    Serial.print(gNorm, 3); Serial.print(",");
 //    Serial.print(bNorm, 3);  Serial.print(",");
 //    if (colClass != COL_BLUE){
-//    printColourName(colClass);  
+//    printColourName(colClass);
 //    }
 //    //rotation ++;
 //  Serial.println("");
@@ -542,33 +503,75 @@ void setup(void) {
 //    secondMaxIdx = 0;
 //
 //  Serial.println("Step");
-//    myMotor->step(10, FORWARD, SINGLE);  
+//    myMotor->step(10, FORWARD, SINGLE);
 //  delay(100);
 //}
 int angle = 0;
-void loop(void) {
+void loop(void)
+{
 
   // Step 1: Get normalized colour vector
   getNormalizedColor();
-  int colClass = getColorClass(); 
-    //Avoid redundant steps in calibration
-
+  int colClass = getColorClass();
+  // Avoid redundant steps in calibration
+  Serial.println(colClass);
   // Step 2: Output colour
-    Serial.print(angle % 10); Serial.print(" | ");
-    Serial.print(rNorm, 3); Serial.print(",");
-    Serial.print(gNorm, 3); Serial.print(",");
-    Serial.print(bNorm, 3);  Serial.print(",");
-    angle++;
-    printColourName(colClass);
-
-
-    myMotor->step(1, FORWARD, MICROSTEP);
-   for(int i = 0; i < 5; i++){
-    arm_servo.write(0);
-    arm_servo.write(40);
-   }
-
+  Serial.print(angle % 10);
+  Serial.print(" | ");
+  Serial.print(rNorm, 3);
+  Serial.print(",");
+  Serial.print(gNorm, 3);
+  Serial.print(",");
+  Serial.print(bNorm, 3);
+  Serial.print(",");
+  if (all_ready)
+  {
+    //  Receneter the item
+    if (colClass >= COL_EDGE_DARK_RED and colClass <= COL_BLUE_WOOD)
+    {
+      Serial.print("Here");
+      // 3 seemed to be too much
+      myMotor->step(2, BACKWARD, MICROSTEP);
+      getNormalizedColor();
+      colClass = getColorClass();
+      if ((colClass >= COL_EDGE_DARK_RED and colClass <= COL_BLUE_WOOD) or colClass >= COL_NOTHING )
+      {
+        myMotor->step(4, FORWARD, MICROSTEP);
+        getNormalizedColor();
+        colClass = getColorClass();
+      }
+        Serial.println("Slight ajust");
+        Serial.print(" | ");
+        Serial.print(rNorm, 3);
+        Serial.print(",");
+        Serial.print(gNorm, 3);
+        Serial.print(",");
+        Serial.print(bNorm, 3);
+        Serial.print(",");
+    }
+    if (colClass >= COL_NOTHING)
+    {
+          Serial.print(rNorm, 3);
+          Serial.print(",");
+          Serial.print(gNorm, 3);
+          Serial.print(",");
+          Serial.print(bNorm, 3);
+          Serial.print(",");
+          recalibrate();
+          getNormalizedColor();
+          colClass = getColorClass();
+    }
+      else
+      {
+        Serial.println("SKIP IT!! 1");
+      }
+  }
+  
+  printColourName(colClass);
+  move_to_color(min(maxIdx,secondMaxIdx));
+  maxIdx = 0;
+  secondMaxIdx = 0;
+  myMotor->step(10, FORWARD, DOUBLE);
+  angle++;
   delay(100);
-
-
 }

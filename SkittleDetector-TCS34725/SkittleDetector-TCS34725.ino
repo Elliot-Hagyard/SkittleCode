@@ -535,7 +535,7 @@ void loop(void)
   if (all_ready)
   {
     //  Receneter the item
-    if (colClass >= COL_EDGE_DARK_RED and colClass <= COL_BLUE_WOOD)
+    if (colClass >= COL_NOTHING and colClass != COL_BLUE)
     {
       Serial.print("Here");
       // 3 seemed to be too much
@@ -549,26 +549,26 @@ void loop(void)
     Serial.print(bNorm, 3);
     Serial.print(",");
   }
-  if (colClass >= COL_EDGE_DARK_RED and colClass != COL_BLUE)
+  if (colClass >= COL_NOTHING and colClass != COL_BLUE)
   {
     Serial.println("Start recalibrate maybe");
     myMotor->step(3, FORWARD, MICROSTEP);
     delay(100);
     getNormalizedColor();
     colClass = getColorClass();
-    if (colClass == COL_NOTHING)
+    if (colClass >= COL_NOTHING and colClass != COL_BLUE)
     {
       myMotor->step(6, BACKWARD, MICROSTEP);
       delay(100);
       getNormalizedColor();
       colClass = getColorClass();
-      if (colClass == COL_NOTHING)
+      if (colClass >= COL_NOTHING and colClass != COL_BLUE)
       {
         myMotor->step(3, FORWARD, MICROSTEP);
         delay(100);
         getNormalizedColor();
         colClass = getColorClass();
-        if (colClass == COL_NOTHING)
+        if (colClass >= COL_NOTHING and colClass != COL_BLUE)
         {
           Serial.print(rNorm, 3);
           Serial.print(",");
@@ -576,7 +576,7 @@ void loop(void)
           Serial.print(",");
           Serial.print(bNorm, 3);
           Serial.print(",");
-          if (colClass != COL_BLUE)
+          if (colClass >= COL_NOTHING and colClass != COL_BLUE)
           {
             printColourName(colClass);
           }
